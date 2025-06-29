@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model UsersLogin {
+    id Int @id @default(autoincrement())
+    username String @db.VarChar(255) @unique(map: "username")
+    password String @db.VarChar(255)
+    role TypeRole
+    is_active Boolean @default(true)
+}
+
+model Users {
+    id Int @id @default(autoincrement())
+    name String @db.VarChar(255)
+    emp_number String @db.VarChar(10) @unique
+    face_directory String? @db.VarChar(255)
+    face_descriptor String? @db.Text
+    is_active Boolean @default(false)
+
+    userRFIDUser UsersRFIDCard[]
+}
+
+model RFIDCard {
+    id Int @id @default(autoincrement())
+    number String @db.VarChar(255) @unique(map: "RFIDNumber")
+    is_active Boolean @default(true)
+
+    userRFIDCard UsersRFIDCard[]
+}
+
+model Rooms {
+    id Int @id @default(autoincrement())
+    name String @db.VarChar(255)
+    secret String? @db.VarChar(255)
+    ip_address String? @db.VarChar(255)
+
+    UserRFIDCardRooms2 UsersRFIDCardRoom[]
+    AccessLogger AccessLog[]
+}
+
+model UsersRFIDCard {
+    id Int @id @default(autoincrement())
+    user_id Int 
+    rfid_id Int 
+
+    UserRFIDCardRooms UsersRFIDCardRoom[]
+    AccessLogger2 AccessLog[]
+    
+    userIDFK Users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    rfidIDFK RFIDCard @relation(fields: [rfid_id], references: [id], onDelete: Cascade)
+
+    @@unique([user_id, rfid_id])
+}
+
+model UsersRFIDCardRoom {
+    id Int @id @default(autoincrement())
+    userrfid_id Int
+    room_id Int
+
+    userRFIDFK UsersRFIDCard @relation(fields: [userrfid_id], references: [id], onDelete: Cascade)
+    roomIDFK Rooms @relation(fields: [room_id], references: [id], onDelete: Cascade)
+
+    @@unique([userrfid_id, room_id])
+}
+
+model AccessLog {
+    id Int @id @default(autoincrement())
+    userrfid_id Int 
+    room_id Int
+    access_log_image_dir String @db.VarChar(255)
+    timestamp DateTime
+
+    userRFIDLogFK UsersRFIDCard @relation(fields: [userrfid_id], references: [id], onDelete: Cascade)
+    roomIDLogFK Rooms @relation(fields: [room_id], references: [id], onDelete: Cascade)
+}
+
+enum TypeRole {
+    ADMIN
+    AUDITOR
+}
