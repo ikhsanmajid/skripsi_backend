@@ -11,7 +11,7 @@ interface IRFIDController {
 
 async function createRFIDHandler(req: Request, res: Response, next: NextFunction) {
     const data = {
-        number: req.body.number
+        number: String(req.body.number).toUpperCase()
     }
 
     const createRFID = await rfidService.createRFID(data.number)
@@ -28,7 +28,7 @@ async function createRFIDHandler(req: Request, res: Response, next: NextFunction
 async function updateRFIDHandler(req: Request, res: Response, next: NextFunction) {
     const data = {
         id: Number(req.params.id),
-        number: req.body.number ? req.body.number : undefined,
+        number: req.body.number ? String(req.body.number).toUpperCase() : undefined,
         is_active: req.body.is_active ? (req.body.is_active == 'true' ? true : false) : undefined
     }
 

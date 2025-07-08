@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import { detectAndGetDescriptor } from "../../utils/face-recognition";
 import { FaceDetection, FaceLandmarks68, WithFaceDescriptor, WithFaceLandmarks } from "@vladmandic/face-api";
 import logger from "../../config/logger";
+import { HttpError } from "../../middleware/error";
 
 // Tensorflow section
 
@@ -13,6 +14,8 @@ interface IUsersController {
     createUser: expressHandler,
     updateUser: expressHandler,
     readAllUser: expressHandler,
+    getUser: expressHandler,
+    getCountUser: expressHandler,
     deleteUser: expressHandler
 }
 
@@ -26,6 +29,10 @@ async function createUserHandler(req: Request, res: Response, next: NextFunction
 
     if (data.file) {
         result = await detectAndGetDescriptor(`./face_image_dir/${data.file}`)
+    }
+
+    if (result == undefined) {
+       return next(new HttpError("Data wajah tidak terdeteksi", 200))
     }
 
     const createUser = await usersService.createUser(data.name, data.emp_number, data.file, result?.descriptor.toString())
@@ -111,6 +118,31 @@ async function readAllUserHandler(req: Request, res: Response, next: NextFunctio
     }
 }
 
+async function getUserHandler(req: Request, res: Response, next: NextFunction) {
+    const filter = {
+        id: Number(req.params.id)
+    }
+    const readUser = await usersService.readUserById(filter.id)
+
+    if ("data" in readUser!) {
+        res.json({
+            status: "success",
+            data: readUser.data
+        })
+    }
+}
+
+async function getCountUserHandler(req: Request, res: Response, next: NextFunction) {
+    const getCount = await usersService.getCountUser()
+
+    if ("count" in getCount!) {
+        res.json({
+            status: "success",
+            count: getCount.count
+        })
+    }
+}
+
 async function deleteUserHandler(req: Request, res: Response, next: NextFunction) {
     const id = Number(req.params.id)
     const deleteUser = await usersService.deleteUser(id)
@@ -127,6 +159,8 @@ async function deleteUserHandler(req: Request, res: Response, next: NextFunction
 export const usersController: IUsersController = {
     createUser: createUserHandler,
     updateUser: updateUserHandler,
+    getUser: getUserHandler,
     readAllUser: readAllUserHandler,
+    getCountUser: getCountUserHandler,
     deleteUser: deleteUserHandler
 }

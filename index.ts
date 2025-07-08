@@ -18,7 +18,7 @@ loadModels().then(() => {
 
 const corsOpttion: CorsOptions = {
     credentials: true,
-    origin: ["http://localhost"]
+    origin: ["http://localhost", "http://localhost:3000"]
 }
 
 const app: Express = express()
@@ -31,10 +31,6 @@ app.use(cors(corsOpttion))
 
 app.get("/", (req: Request, res: Response) => {
     res.send("It Works!")
-})
-
-app.get("/time", (req: Request, res: Response) => {
-    res.json({ time: new Date().toISOString() })
 })
 
 app.use('/login', login)

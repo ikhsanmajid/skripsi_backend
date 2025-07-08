@@ -16,7 +16,7 @@ async function generateAccessToken(userinfo: any): Promise<string> {
     if (!process.env.TOKEN_SECRET) {
         throw new Error("TOKEN_SECRET is not defined in environment variables.");
     }
-    const access_token = await jsonwebtoken.sign(userinfo, process.env.TOKEN_SECRET, { expiresIn: '3h' });
+    const access_token = await jsonwebtoken.sign(userinfo, process.env.TOKEN_SECRET, { expiresIn: '2h' });
     return access_token;
 }
 
@@ -54,14 +54,14 @@ async function loginHandler(req: Request, res: Response, next: NextFunction): Pr
         if (err) {
             console.error("Autentikasi Error:", err);
             if (err.message) {
-                return next(new HttpError("Autentikasi Error", 500))
+                return next(new HttpError("Server Authentikasi Error", 500))
             }
             return next(err);
         }
 
         if (!access_token) {
             const message = info && info.message ? info.message : "Autentikasi Gagal";
-            return next(new HttpError(info.message, 401))
+            return next(new HttpError(message, 200))
         }
 
         delete userinfo.password

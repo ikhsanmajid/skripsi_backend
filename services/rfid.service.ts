@@ -99,8 +99,6 @@ async function readAllRFIDHandler(offset: number | undefined, limit: number | un
                 AND: whereConditions.length > 0 ? whereConditions : undefined
 
             },
-            skip: offset,
-            take: limit 
         });
 
         return {

@@ -6,6 +6,7 @@ interface IRoomsController {
     createRoom: expressHandler,
     updateRoom: expressHandler,
     readAllRoom: expressHandler,
+    getCountRoom: expressHandler,
     deleteRoom: expressHandler
 }
 
@@ -63,6 +64,17 @@ async function readAllRoomHandler(req: Request, res: Response, next: NextFunctio
     }
 }
 
+async function getCountRoomHandler(req: Request, res: Response, next: NextFunction) {
+    const getCount = await roomsService.getCountRoom()
+
+    if ("count" in getCount!) {
+        res.json({
+            status: "success",
+            count: getCount.count
+        })
+    }
+}
+
 async function deleteRoomHandler(req: Request, res: Response, next: NextFunction) {
     const id = Number(req.params.id)
     const deleteRoom = await roomsService.deleteRoom(id)
@@ -80,5 +92,6 @@ export const roomsController: IRoomsController = {
     createRoom: createRoomHandler,
     updateRoom: updateRoomHandler,
     readAllRoom: readAllRoomHandler,
+    getCountRoom: getCountRoomHandler,
     deleteRoom: deleteRoomHandler
 }

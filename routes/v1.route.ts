@@ -9,14 +9,13 @@ import { authorizeRoles } from "../middleware/authorization";
 
 const router: Router = Router()
 
-router.get("/getservertime", authenticateToken, authorizeRoles(['ADMIN']), (req: Request, res: Response, next: NextFunction) => {
-    const dateNow = new Date().toLocaleString();
-    res.send(dateNow);
-});
-
 router.use("/users_login", usersLogin)
 router.use("/users", users)
 router.use("/rooms", rooms)
 router.use("/rfid", rfid)
+
+router.get("/time", (req: Request, res: Response) => {
+    res.json({ time: new Date().toISOString() })
+})
  
 export default router;

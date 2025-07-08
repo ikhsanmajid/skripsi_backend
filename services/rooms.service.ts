@@ -5,6 +5,7 @@ interface IRoomsService {
     createRoom: (name: string, secret: string, ip_address: string | undefined) => Promise<ResultModel<Rooms | any | null>>,
     updateRoom: (id: number, name: string | undefined, secret: string | undefined, ip_address: string | undefined) => Promise<ResultModel<Rooms | any | null>>
     readAllRoom: (offset: number | undefined, limit: number | undefined, keyword: string | undefined) => Promise<ResultModel<Rooms[] | any | null>>
+    getCountRoom: () => Promise<ResultModel<Rooms | any | null>>
     readByIdRoom: (id: number) => Promise<ResultModel<Rooms | any | null>>
     deleteRoom: (id: number) => Promise<ResultModel<Rooms | any | null>>
 }
@@ -29,6 +30,19 @@ async function createRoomHandler(name: string, secret: string, ip_address: strin
 
         return {
             data: createRoom
+        }
+    } catch (error: unknown) {
+        throw error
+
+    }
+}
+
+async function getCountRoomHandler() {
+    try {
+        const countRoom = await prisma.rooms.count()
+
+        return {
+            count: countRoom
         }
     } catch (error: unknown) {
         throw error
@@ -72,7 +86,9 @@ async function readAllRoomHandler(offset: number | undefined, limit: number | un
         if (keyword) {
             whereConditions.push({
                 OR: [
-                    { name: { contains: keyword } }
+                    { name: { contains: keyword } },
+                    { secret: { contains: keyword } },
+                    { ip_address: { contains: keyword } }
                 ]
             });
         }
@@ -100,8 +116,6 @@ async function readAllRoomHandler(offset: number | undefined, limit: number | un
                 AND: whereConditions.length > 0 ? whereConditions : undefined
 
             },
-            skip: offset,
-            take: limit
         });
 
         return {
@@ -128,7 +142,7 @@ async function readRoomByIdHandler(id: number): Promise<ResultModel<Rooms | any 
                 id: id
 
             }
-            
+
         })
 
         return {
@@ -162,6 +176,7 @@ const roomsService: IRoomsService = {
     createRoom: createRoomHandler,
     updateRoom: updateRoomHandler,
     readAllRoom: readAllRoomHandler,
+    getCountRoom: getCountRoomHandler,
     readByIdRoom: readRoomByIdHandler,
     deleteRoom: deleteRoomHandler
 }

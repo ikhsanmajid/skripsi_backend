@@ -5,6 +5,7 @@ interface IUsersService {
     createUser: (name: string, emp_number: string, face_directory: string | undefined, face_descriptor: string | undefined) => Promise<ResultModel<Users | any | null>>,
     updateUser: (id: number, name: string | undefined, emp_number: string | undefined, face_directory: string | undefined, face_descriptor: string | undefined, is_active: boolean | undefined) => Promise<ResultModel<Users | any | null>>
     readAllUser: (offset: number | undefined, limit: number | undefined, keyword: string | undefined, is_active: boolean | undefined) => Promise<ResultModel<Users[] | any | null>>
+    getCountUser: () => Promise<ResultModel<Users | any | null>>
     readUserById: (id: number) => Promise<ResultModel<Users | any | null>>
     deleteUser: (id: number) => Promise<ResultModel<Users | any | null>>
 }
@@ -117,13 +118,28 @@ async function readAllUserHandler(offset: number | undefined, limit: number | un
                 AND: whereConditions.length > 0 ? whereConditions : undefined
 
             },
-            skip: offset,
-            take: limit
         });
 
         return {
             data: readAllUser,
             count: count
+        }
+    } catch (error: unknown) {
+        throw error
+
+    }
+}
+
+async function getCountUserHandler() {
+    try {
+        const countUser = await prisma.users.count({
+            where: {
+                is_active: true
+            }
+        })
+
+        return {
+            count: countUser
         }
     } catch (error: unknown) {
         throw error
@@ -178,6 +194,7 @@ const usersService: IUsersService = {
     updateUser: updateUserHandler,
     readAllUser: readAllUserHandler,
     readUserById: readAUserByIdHandler,
+    getCountUser: getCountUserHandler,
     deleteUser: deleteUserHandler
 }
 
