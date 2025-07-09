@@ -63,10 +63,9 @@ async function loginHandler(req: Request, res: Response, next: NextFunction): Pr
             if (err.message) {
                 return next(new HttpError(err.message, 200))
             }
-
             return next(err);
         }
-        
+
 
         if (!tokenInfo) {
             const message = info && info.message ? info.message : "Autentikasi Gagal";
