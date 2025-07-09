@@ -12,12 +12,15 @@ interface ILoginController {
 }
 
 
-async function generateAccessToken(userinfo: any): Promise<string> {
+async function generateAccessToken(userinfo: any): Promise<{ token: string, expires_at: Date }> {
     if (!process.env.TOKEN_SECRET) {
         throw new Error("TOKEN_SECRET is not defined in environment variables.");
     }
-    const access_token = await jsonwebtoken.sign(userinfo, process.env.TOKEN_SECRET, { expiresIn: '2h' });
-    return access_token;
+    const expiresInSeconds = Number(process.env.TOKEN_EXPIRATION!) * 60 * 60
+    const access_token = await jsonwebtoken.sign(userinfo, process.env.TOKEN_SECRET, { expiresIn: expiresInSeconds });
+    const expires_at = new Date(Date.now() + expiresInSeconds * 1000);
+
+    return { token: access_token, expires_at };
 }
 
 const local = new LocalStrategy({ usernameField: "username" }, async (username, password, done) => {
@@ -25,13 +28,17 @@ const local = new LocalStrategy({ usernameField: "username" }, async (username, 
         const loginResult = await loginService.findUsername(username);
 
         if (!loginResult || !('data' in loginResult) || loginResult.data === null) {
-            return done(null, false, { message: "Username Tidak Ada" });
+            return done({ message: "Username Tidak Ada" }, false,);
         }
 
         const user = loginResult.data;
 
+        if (user.is_active == 0 || user.is_active == false) {
+            return done({ message: "User Tidak Aktif" }, false,);
+        }
+
         if (!bcrypt.compareSync(password, user.password)) {
-            return done(null, false, { message: "Password Salah" });
+            return done({ message: "Password Salah" }, false,);
         }
 
         const accessToken = await generateAccessToken({
@@ -50,16 +57,17 @@ const local = new LocalStrategy({ usernameField: "username" }, async (username, 
 passport.use(local);
 
 async function loginHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
-    passport.authenticate('local', { session: false }, (err: any, access_token: string | false, userinfo: any, info: any) => {
+    passport.authenticate('local', { session: false }, (err: any, tokenInfo: { token: string, expires_at: Date } | false, userinfo: any, info: any) => {
         if (err) {
             console.error("Autentikasi Error:", err);
             if (err.message) {
-                return next(new HttpError("Server Authentikasi Error", 500))
+                return next(new HttpError(err.message, 200))
             }
+            
             return next(err);
         }
 
-        if (!access_token) {
+        if (!tokenInfo) {
             const message = info && info.message ? info.message : "Autentikasi Gagal";
             return next(new HttpError(message, 200))
         }
@@ -69,7 +77,8 @@ async function loginHandler(req: Request, res: Response, next: NextFunction): Pr
         res.status(200).json({
             status: "success",
             message: "Login Berhasil",
-            access_token: access_token,
+            access_token: tokenInfo.token,
+            expires_at: tokenInfo.expires_at,
             user: userinfo
         });
 
