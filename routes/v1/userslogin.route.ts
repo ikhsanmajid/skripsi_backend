@@ -7,6 +7,13 @@ import { authenticateToken } from "../../middleware/authentication";
 
 const router: Router = Router()
 
-router.post("/register", authenticateToken, authorizeRoles(['ADMIN']), validateTextOnly(registerUserSchema), usersLoginController.register)
+router.use(authenticateToken)
+
+router.post("/register", authorizeRoles(['ADMIN']), validateTextOnly(registerUserSchema), usersLoginController.register)
+router.get("/", authorizeRoles(['ADMIN', 'AUDITOR']), usersLoginController.readAllUser)
+router.get("/count", authorizeRoles(['ADMIN', 'AUDITOR']), usersLoginController.getCountUser)
+router.get("/:id", authorizeRoles(['ADMIN', 'AUDITOR']), usersLoginController.getUser)
+router.patch("/update/:id", authorizeRoles(['ADMIN']), validateTextOnly(registerUserSchema), usersLoginController.updateUser)
+router.delete("/delete/:id", authorizeRoles(['ADMIN']), usersLoginController.deleteUser)
 
 export default router

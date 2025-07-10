@@ -61,7 +61,7 @@ async function loginHandler(req: Request, res: Response, next: NextFunction): Pr
         if (err) {
             console.error("Autentikasi Error:", err);
             if (err.message) {
-                return next(new HttpError(err.message, 200))
+                return next(new HttpError(err.message, 401))
             }
             return next(err);
         }
@@ -69,7 +69,7 @@ async function loginHandler(req: Request, res: Response, next: NextFunction): Pr
 
         if (!tokenInfo) {
             const message = info && info.message ? info.message : "Autentikasi Gagal";
-            return next(new HttpError(message, 200))
+            return next(new HttpError(message, 401))
         }
 
         delete userinfo.password

@@ -4,7 +4,7 @@ import { HttpError } from "./error"
 export const authorizeRoles = (allowedRoles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
         if (!req.user){
-            return next(new HttpError("Authentikasi Dibutuhkan", 401))
+            return next(new HttpError("Authentikasi Dibutuhkan", 403))
         }
 
         if (allowedRoles.includes(req.user.role)){

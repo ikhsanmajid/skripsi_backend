@@ -167,7 +167,7 @@ async function readAUserByIdHandler(id: number): Promise<ResultModel<Users | any
             data: readUser
         }
     } catch (error: unknown) {
-        throw error
+        throw error 
 
     }
 }
