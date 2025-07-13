@@ -10,6 +10,7 @@ const router: Router = Router()
 router.use(authenticateToken)
 
 router.get("/", authorizeRoles(['ADMIN', 'AUDITOR']), rfidController.readAllRFID)
+router.get("/getUnassigned", authorizeRoles(['ADMIN']), rfidController.getUnassignedRFID)
 router.patch("/update/:id", authorizeRoles(['ADMIN']), validateTextOnly(rfidUpdateSchema), rfidController.updateRFID)
 router.post("/create", authorizeRoles(['ADMIN']), validateTextOnly(rfidCreateSchema), rfidController.createRFID)
 router.delete("/delete/:id", authorizeRoles(['ADMIN']), rfidController.deleteRFID)

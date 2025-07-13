@@ -32,7 +32,7 @@ async function createUserHandler(req: Request, res: Response, next: NextFunction
     }
 
     if (result == undefined) {
-       return next(new HttpError("Data wajah tidak terdeteksi", 200))
+        return next(new HttpError("Data wajah tidak terdeteksi", 200))
     }
 
     const createUser = await usersService.createUser(data.name, data.emp_number, data.file, result?.descriptor.toString())
@@ -53,6 +53,7 @@ async function updateUserHandler(req: Request, res: Response, next: NextFunction
         name: req.body.name ? req.body.name : undefined,
         emp_number: req.body.emp_number ? req.body.emp_number : undefined,
         file: req.file ? req.file.filename : undefined,
+        rfid: req.body.rfid ? Number(req.body.rfid) : undefined,
         is_active: req.body.is_active ? (req.body.is_active === 'true' ? true : false) : undefined
     }
 
@@ -60,23 +61,9 @@ async function updateUserHandler(req: Request, res: Response, next: NextFunction
 
     if (data.file) {
         result = await detectAndGetDescriptor(`./face_image_dir/${data.file}`)
-    }
 
-    if (result == undefined) {
-        fs.unlink(`./face_image_dir/${data.file}`, (err) => {
-            if (err) {
-                logger.error({
-                    message: "File gagal dihapus",
-                    path: `./face_image_dir/${data.file}`,
-                    error: err
-                })
-            }
-        })
-    } else {
-        const getImagePath = await usersService.readUserById(data.id)
-        if ("data" in getImagePath!) {
-            const userImagePath = getImagePath.data.face_directory
-            fs.unlink(`./face_image_dir/${userImagePath}`, (err) => {
+        if (result == undefined) {
+            fs.unlink(`./face_image_dir/${data.file}`, (err) => {
                 if (err) {
                     logger.error({
                         message: "File gagal dihapus",
@@ -85,12 +72,29 @@ async function updateUserHandler(req: Request, res: Response, next: NextFunction
                     })
                 }
             })
+        } else {
+            const getImagePath = await usersService.readUserById(data.id)
+            if ("data" in getImagePath!) {
+                const userImagePath = getImagePath.data.face_directory
+                fs.unlink(`./face_image_dir/${userImagePath}`, (err) => {
+                    if (err) {
+                        logger.error({
+                            message: "File gagal dihapus",
+                            path: `./face_image_dir/${data.file}`,
+                            error: err
+                        })
+                    }
+                })
+            }
         }
     }
 
-    const updateUser = await usersService.updateUser(data.id, data.name, data.emp_number, result == undefined ? undefined : data.file, result?.descriptor.toString(), data.is_active)
+    const updateUser = await usersService.updateUser(data.id, data.name, data.emp_number, result == undefined ? undefined : data.file, result?.descriptor.toString(), data.rfid, data.is_active)
+
+
 
     if ("data" in updateUser!) {
+        console.log(updateUser)
         res.json({
             status: "success",
             data: updateUser.data,

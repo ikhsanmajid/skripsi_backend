@@ -6,6 +6,7 @@ interface IRFIDService {
     updateRFID: (id: number, number: string | undefined, is_active: boolean | undefined) => Promise<ResultModel<RFIDCard | any | null>>
     readAllRFID: (offset: number | undefined, limit: number | undefined, keyword: string | undefined, is_active: boolean | undefined) => Promise<ResultModel<RFIDCard[] | any | null>>
     deleteRFID: (id: number) => Promise<ResultModel<RFIDCard | any | null>>
+    getUnassignedRFID: (keyword: string | undefined) => Promise<ResultModel<RFIDCard | any | null>>
 }
 
 const prisma = new PrismaClient();
@@ -93,7 +94,7 @@ async function readAllRFIDHandler(offset: number | undefined, limit: number | un
             skip: offset,
             take: limit
         })
-        
+
         const count = await prisma.rFIDCard.count({
             where: {
                 AND: whereConditions.length > 0 ? whereConditions : undefined
@@ -111,7 +112,26 @@ async function readAllRFIDHandler(offset: number | undefined, limit: number | un
     }
 }
 
-async function deleteRFIDHandler(id: number): Promise<ResultModel<RFIDCard | any | null>>{
+async function getUnassignedRFIDHandler(keyword: string | undefined) {
+    const unassignedRFID = await prisma.rFIDCard.findMany({
+        where: {
+            number: {
+                contains: keyword
+            },
+            is_active: true,
+            userRFIDCard: {
+                none: {}
+            }
+        },
+        take: 10
+    })
+
+    return {
+        data: unassignedRFID
+    }
+}
+
+async function deleteRFIDHandler(id: number): Promise<ResultModel<RFIDCard | any | null>> {
     const deleteRFID = await prisma.rFIDCard.delete({
         where: {
             id: id
@@ -132,7 +152,8 @@ const rfidService: IRFIDService = {
     createRFID: createRFIDHandler,
     updateRFID: updateRFIDHandler,
     readAllRFID: readAllRFIDHandler,
-    deleteRFID: deleteRFIDHandler
+    deleteRFID: deleteRFIDHandler,
+    getUnassignedRFID: getUnassignedRFIDHandler
 }
 
 export default rfidService
