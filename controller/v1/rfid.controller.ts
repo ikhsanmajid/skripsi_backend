@@ -6,7 +6,8 @@ interface IRFIDController {
     createRFID: expressHandler,
     updateRFID: expressHandler,
     readAllRFID: expressHandler,
-    deleteRFID: expressHandler
+    deleteRFID: expressHandler,
+    getUnassignedRFID: expressHandler
 }
 
 async function createRFIDHandler(req: Request, res: Response, next: NextFunction) {
@@ -61,6 +62,20 @@ async function readAllRFIDHandler(req: Request, res: Response, next: NextFunctio
     }
 }
 
+async function getUnassignedRFIDHandler(req: Request, res: Response, next: NextFunction) {
+    const keyword = req.query.keyword !== undefined ? String(req.query.keyword) : undefined
+    const unassignedRFID = await rfidService.getUnassignedRFID(keyword)
+
+    console.log(keyword)
+
+    if ("data" in unassignedRFID!) {
+        res.json({
+            status: "success",
+            data: unassignedRFID.data
+        })
+    }
+}
+
 async function deleteRFIDHandler(req: Request, res: Response, next: NextFunction) {
     const id = Number(req.params.id)
     const deleteRFID = await rfidService.deleteRFID(id)
@@ -78,5 +93,6 @@ export const rfidController: IRFIDController = {
     createRFID: createRFIDHandler,
     updateRFID: updateRFIDHandler,
     readAllRFID: readAllRFIDHandler,
-    deleteRFID: deleteRFIDHandler
+    deleteRFID: deleteRFIDHandler,
+    getUnassignedRFID: getUnassignedRFIDHandler
 }
