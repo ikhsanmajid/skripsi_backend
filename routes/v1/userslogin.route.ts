@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { validateTextOnly } from "../../middleware/validation";
-import { registerUserSchema } from "../../schemas/usersloginSchemas";
+import { registerUserSchema, updateUserSchema } from "../../schemas/usersloginSchemas";
 import { usersLoginController } from "../../controller/v1/userslogin.controller";
 import { authorizeRoles } from "../../middleware/authorization";
 import { authenticateToken } from "../../middleware/authentication";
@@ -13,7 +13,7 @@ router.post("/register", authorizeRoles(['ADMIN']), validateTextOnly(registerUse
 router.get("/", authorizeRoles(['ADMIN', 'AUDITOR']), usersLoginController.readAllUser)
 router.get("/count", authorizeRoles(['ADMIN', 'AUDITOR']), usersLoginController.getCountUser)
 router.get("/:id", authorizeRoles(['ADMIN', 'AUDITOR']), usersLoginController.getUser)
-router.patch("/update/:id", authorizeRoles(['ADMIN']), validateTextOnly(registerUserSchema), usersLoginController.updateUser)
+router.patch("/update/:id", authorizeRoles(['ADMIN']), validateTextOnly(updateUserSchema), usersLoginController.updateUser)
 router.delete("/delete/:id", authorizeRoles(['ADMIN']), usersLoginController.deleteUser)
 
 export default router

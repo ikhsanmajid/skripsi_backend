@@ -16,7 +16,9 @@ interface IUsersLoginController {
 async function registerHandler(req: Request, res: Response, next: NextFunction) {
     const newUser = req.body
     const password = await bcrypt.hash(newUser.password, 10)
-    const register = await usersLoginService.registerUser(newUser.username, password)
+    const role = newUser.role.toString().toUpperCase() as keyof typeof TypeRole;
+
+    const register = await usersLoginService.registerUser(newUser.username, password, TypeRole[role])
 
     if ("data" in register!) {
         res.json({
@@ -32,11 +34,11 @@ async function updateUserHandler(req: Request, res: Response, next: NextFunction
         id: Number(req.params.id),
         username: req.body.username ? req.body.username : undefined,
         password: req.body.password ? req.body.password : undefined,
-        role: req.body.role ? req.body.role : undefined,
+        role: req.body.role ? req.body.role.toString().toUpperCase() as keyof typeof TypeRole : undefined,
         is_active: req.body.is_active ? (req.body.is_active === 'true' ? true : false) : undefined
     }
 
-    const hashPassword = data.password ? await bcrypt.hash(data.password, 10) : undefined
+    const hashPassword = data.password !== "default" ? await bcrypt.hash(data.password, 10) : undefined
 
     const updateUser = await usersLoginService.updateUser(data.id, data.username, hashPassword, data.role, data.is_active)
 
