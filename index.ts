@@ -18,7 +18,7 @@ loadModels().then(() => {
 
 const corsOpttion: CorsOptions = {
     credentials: true,
-    origin: ["http://localhost", "http://localhost:3000"]
+    origin: ["http://localhost", "http://localhost:3000", "http://192.168.63.136"]
 }
 
 const app: Express = express()
