@@ -40,7 +40,7 @@ async function checkWhiteListRFIDHandler(room_id: number, rfid: string) {
             },
             roomIDFK: {
                 select: {
-                    name: true
+                    name: true,
                 }
             }
         },
@@ -64,7 +64,6 @@ async function checkWhiteListRFIDHandler(room_id: number, rfid: string) {
         room_name: checkWhiteList?.roomIDFK.name,
         face_descriptor: checkWhiteList?.userRFIDFK.userIDFK.face_descriptor,
         is_active_user: checkWhiteList?.userRFIDFK.userIDFK.is_active
-
     }
 
     //console.log(checkWhiteList)

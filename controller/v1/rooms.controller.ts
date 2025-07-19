@@ -1,9 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { expressHandler } from "../../types/types";
 import roomsService from "../../services/rooms.service";
+import { HttpError } from "../../middleware/error";
 
 interface IRoomsController {
     createRoom: expressHandler,
+    getDetailRoom: expressHandler,
     updateRoom: expressHandler,
     readAllRoom: expressHandler,
     getCountRoom: expressHandler,
@@ -64,6 +66,26 @@ async function readAllRoomHandler(req: Request, res: Response, next: NextFunctio
     }
 }
 
+async function getDetailRoomHandler(req: Request, res: Response, next: NextFunction) {
+    const filter = {
+        id: req.params.id ? Number(req.params.id) : null
+    }
+
+    if(filter.id == null){
+        throw new HttpError("ID Room Dibutuhkan", 400)
+    }
+
+    const readRoom = await roomsService.readByIdRoom(filter.id)
+
+    if ("data" in readRoom!) {
+        res.json({
+            status: "success",
+            data: readRoom.data,
+            count: readRoom.count
+        })
+    }
+}
+
 async function getCountRoomHandler(req: Request, res: Response, next: NextFunction) {
     const getCount = await roomsService.getCountRoom()
 
@@ -90,6 +112,7 @@ async function deleteRoomHandler(req: Request, res: Response, next: NextFunction
 
 export const roomsController: IRoomsController = {
     createRoom: createRoomHandler,
+    getDetailRoom: getDetailRoomHandler,
     updateRoom: updateRoomHandler,
     readAllRoom: readAllRoomHandler,
     getCountRoom: getCountRoomHandler,

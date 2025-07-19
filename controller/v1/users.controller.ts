@@ -31,9 +31,9 @@ async function createUserHandler(req: Request, res: Response, next: NextFunction
         result = await detectAndGetDescriptor(`./face_image_dir/${data.file}`)
     }
 
-    if (result == undefined) {
-        return next(new HttpError("Data wajah tidak terdeteksi", 200))
-    }
+    // if (result == undefined) {
+    //     return next(new HttpError("Data wajah tidak terdeteksi", 200))
+    // }
 
     const createUser = await usersService.createUser(data.name, data.emp_number, data.file, result?.descriptor.toString())
 

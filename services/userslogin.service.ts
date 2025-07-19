@@ -2,7 +2,7 @@ import { Prisma, PrismaClient, TypeRole, Users, UsersLogin } from "@prisma/clien
 import { ResultModel } from "../types/types";
 
 interface IUsersLoginService {
-    registerUser: (username: string, password: string) => Promise<ResultModel<UsersLogin | any | null>>
+    registerUser: (username: string, password: string, role: TypeRole) => Promise<ResultModel<UsersLogin | any | null>>
     updateUser: (id: number, username: string | undefined, password: string | undefined, role: TypeRole | undefined, is_active: boolean | undefined) => Promise<ResultModel<UsersLogin | any | null>>
     readAllUser: (offset: number | undefined, limit: number | undefined, keyword: string | undefined, role: TypeRole | undefined, is_active: boolean | undefined) => Promise<ResultModel<UsersLogin[] | any | null>>
     getCountUser: () => Promise<ResultModel<UsersLogin | any | null>>
@@ -12,13 +12,13 @@ interface IUsersLoginService {
 
 const prisma = new PrismaClient();
 
-async function registerUserHandler(username: string, password: string): Promise<ResultModel<UsersLogin | any | null>> {
+async function registerUserHandler(username: string, password: string, role: TypeRole): Promise<ResultModel<UsersLogin | any | null>> {
     try {
         const register = await prisma.usersLogin.create({
             data: {
                 username: username,
                 password: password,
-                role: TypeRole["ADMIN"],
+                role: role,
                 is_active: true
             }
         })

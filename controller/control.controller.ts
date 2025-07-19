@@ -24,7 +24,7 @@ async function unlockDoorHandler(req: Request, res: Response, next: NextFunction
     const descriptor = await detectAndGetDescriptor(`./log_camera/${req.file?.filename}`)
 
     if (descriptor == undefined) {
-        return next(new HttpError("Data wajah tidak terdeteksi", 404, undefined, { unlock: false }))
+        return next(new HttpError("Data wajah tidak terdeteksi", 200, undefined, { unlock: false }))
     }
 
     const searchDataWhiteList = await controlService.checkWhiteListRFID(data.room_id, data.rfid)
@@ -32,13 +32,17 @@ async function unlockDoorHandler(req: Request, res: Response, next: NextFunction
     if ("data" in searchDataWhiteList!) {
 
         if (searchDataWhiteList.data == null) {
-            return next(new HttpError("RFID/Room tidak cocok", 404, undefined, { unlock: false }))
+            return next(new HttpError("RFID/Room tidak cocok", 200, undefined, { unlock: false }))
         }
 
         const dataWhiteList = searchDataWhiteList.data
 
-        if (dataWhiteList.face_descriptor!.length < 1) {
-            return next(new HttpError("Data wajah belum direkam", 404, undefined, { unlock: false }))
+        if(dataWhiteList.is_active_user == false){
+            return next(new HttpError("User Tidak Aktif", 200, undefined, { unlock: false }))
+        }
+
+        if (dataWhiteList.face_descriptor == null) {
+            return next(new HttpError("Data wajah belum direkam", 200, undefined, { unlock: false }))
         }
 
         const referenceDescriptor = dataWhiteList?.face_descriptor?.split(',')

@@ -11,6 +11,7 @@ router.use(authenticateToken)
 
 router.get("/", authorizeRoles(['ADMIN', 'AUDITOR']), roomsController.readAllRoom)
 router.get("/count", authorizeRoles(['ADMIN', 'AUDITOR']), roomsController.getCountRoom)
+router.get("/:id", authorizeRoles(['ADMIN', 'AUDITOR']), roomsController.getDetailRoom)
 router.patch("/update/:id", authorizeRoles(['ADMIN']), validateTextOnly(roomUpdateSchema), roomsController.updateRoom)
 router.post("/create", authorizeRoles(['ADMIN']), validateTextOnly(roomCreateSchema), roomsController.createRoom)
 router.delete("/delete/:id", authorizeRoles(['ADMIN']), roomsController.deleteRoom)
