@@ -12,7 +12,9 @@ declare module 'express-serve-static-core' {
 export const authenticateEsp = async (req: Request, res: Response, next: NextFunction) => {
     const secretHeader = req.headers['secret'];
     const idRoomHeader = req.headers['id-room'];
-    const simulatedIpHeader = req.headers['x-simulated-ip'];
+    const simulatedIpHeader = req.socket.remoteAddress;
+
+    console.log(req.socket.remoteAddress)
 
     const secret = secretHeader;
     const idRoom = Number(idRoomHeader)
