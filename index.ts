@@ -38,6 +38,6 @@ app.use('/api/v1', v1)
 app.use("/door", control)
 app.use(handleErrorCustom)
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
     console.log(`App listening on port ${port}`)
 })

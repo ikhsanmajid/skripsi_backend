@@ -47,7 +47,7 @@ async function checkWhiteListRFIDHandler(room_id: number, rfid: string) {
         where: {
             userRFIDFK: {
                 rfidIDFK: {
-                    number: rfid
+                    number: rfid,
                 },
             },
             roomIDFK: {
