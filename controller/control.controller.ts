@@ -149,6 +149,9 @@ export async function unlockDoorHandler(
         const message = comparasionImage
           ? `Selamat datang ${dataWhiteList.name} dengan RFID ${dataWhiteList.number} di ${dataWhiteList.room_name}`
           : `Data wajah tidak cocok`;
+
+        // async save to db
+        const saveAccessLog = controlService.saveToAccessLog(rfid, room_id, filename)
   
         res.json({
           status,
