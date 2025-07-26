@@ -6,6 +6,7 @@ import users from './v1/users.route'
 import rooms from './v1/rooms.route'
 import rfid from './v1/rfid.route'
 import users_room from './v1/usersrfidrooms.route'
+import accesslog from './v1/access-log.route'
 import { authorizeRoles } from "../middleware/authorization";
 
 const router: Router = Router()
@@ -15,6 +16,7 @@ router.use("/users", users)
 router.use("/rooms", rooms)
 router.use("/users-rooms", users_room)
 router.use("/rfid", rfid)
+router.use("/access-log", accesslog)
 
 router.get("/time", (req: Request, res: Response) => {
     res.json({ time: new Date().toISOString() })
