@@ -145,6 +145,11 @@ async function readAllUserHandler(offset: number | undefined, limit: number | un
                 userRFIDUser: {
                     select: {
                         id: true,
+                        userIDFK: {
+                            select: {
+                                id: true
+                            }
+                        },
                         rfidIDFK: {
                             select: {
                                 id: true,
@@ -167,8 +172,10 @@ async function readAllUserHandler(offset: number | undefined, limit: number | un
 
         const flattenResult = readAllUser.map((user) => {
             const rfidRel = user.userRFIDUser?.[0]?.rfidIDFK;
+            const userRel = user.userRFIDUser?.[0]?.userIDFK;
             return {
                 ...user,
+                idUser: userRel? userRel.id : null,
                 idRfidUser: rfidRel ? user.userRFIDUser?.[0].id : null,
                 rfid: rfidRel ? {
                     id: rfidRel.id,

@@ -24,7 +24,7 @@ interface IControlService {
     checkWhiteListRFID: (room_id: number, rfid: string) => Promise<ResultModel<Partial<resultCheckWhiteList> | null>>
     saveToAccessLog: (rfid: string, room_id: number, image: string) => Promise<ResultModel<{ id: number } | null>>
     getLastTenAccess: () => Promise<ResultModel<AccessLog[] | null>>
-    getAccessList: (limit: number, offset: number, room_id: number, user_id: number, startDate: string, endDate: string) => Promise<ResultModel<AccessLog[] | null>>
+    getAccessList: (limit: number, offset: number, room_id: number | undefined, user_id: number | undefined, startDate: string | undefined, endDate: string | undefined) => Promise<ResultModel<AccessLog[] | null>>
 }
 
 const prisma = new PrismaClient();
@@ -165,7 +165,7 @@ async function getLastTenAccessHandler() {
     }
 }
 
-async function getAccessListHandler(limit: number, offset: number, room_id: number, user_id: number, startDate: string, endDate: string) {
+async function getAccessListHandler(limit: number, offset: number, room_id: number | undefined, user_id: number | undefined, startDate: string | undefined, endDate: string | undefined) {
     const whereConditions: Prisma.AccessLogWhereInput[] = [];
 
     if (room_id) {
@@ -240,8 +240,13 @@ async function getAccessListHandler(limit: number, offset: number, room_id: numb
         timestamp: item.timestamp,
     }));
 
+    const count = await prisma.accessLog.count({
+        where: whereConditions.length > 0 ? { AND: whereConditions } : undefined,
+    })
+
     return {
         data: result,
+        count: count
     };
 }
 
