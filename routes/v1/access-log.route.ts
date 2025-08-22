@@ -9,7 +9,7 @@ const router: Router = Router()
 router.use(authenticateToken)
 
 router.get("/", authorizeRoles(['ADMIN', 'AUDITOR']), AccessLogController.getLastTenAccess)
-router.get("/access-list", authorizeRoles(['ADMIN', 'AUDITOR']), AccessLogController.getLastTenAccess)
+router.get("/access-list", authorizeRoles(['ADMIN', 'AUDITOR']), AccessLogController.getListAccess)
 router.use('/image', express.static(path.join(__dirname, '../../log_camera')));
 
 export default router

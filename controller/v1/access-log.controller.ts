@@ -5,6 +5,7 @@ import { HttpError } from "../../middleware/error";
 
 interface IAccessLogController {
     getLastTenAccess: expressHandler
+    getListAccess: expressHandler
 }
 
 async function getLastAccessHandler(req: Request, res: Response, next: NextFunction) {
@@ -28,9 +29,11 @@ async function getAccessListHandler(req: Request, res: Response, next: NextFunct
         endDate: req.query.end_date ? String(req.query.end_date) : undefined,
     }
 
-    if(!filter.room_id || !filter.user_id || !filter.startDate || !filter.endDate) {
+    if(!filter.startDate && filter.endDate) {
         throw new HttpError("Input tidak lengkap", 400)
     }
+
+    console.log(filter)
 
     const accessList = await controlService.getAccessList(
         filter.limit,
@@ -44,12 +47,14 @@ async function getAccessListHandler(req: Request, res: Response, next: NextFunct
     if ("data" in accessList!) {
         res.json({
             status: "success",
-            data: accessList.data
+            data: accessList.data,
+            count: accessList.count
         })
     }
 }
 
 
 export const AccessLogController: IAccessLogController = {
-    getLastTenAccess: getLastAccessHandler
+    getLastTenAccess: getLastAccessHandler,
+    getListAccess: getAccessListHandler
 }
